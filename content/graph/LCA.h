@@ -1,4 +1,3 @@
-#include "../data-structures/RMQ.h"
 struct LCA {
   int T = 0;
   vi st, path, ret;
