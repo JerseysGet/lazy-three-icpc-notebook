@@ -1,6 +1,6 @@
 /* Description: Can be used for convolutions modulo specific nice primes of the form 2^a b+1, where the convolution result has size at most 2^a
- * (125000001 << 3) + 1 = 1e9 + 7, therefore do not use this for M = 1e9 + 7. 
- * For $p < 2^30$ there is also e.g. (5 << 25, 3), (7 << 26, 3), 
+ * (125000001 << 3) + 1 = 1e9 + 7, therefore do not use this for M = 1e9 + 7.
+ * For $p < 2^30$ there is also e.g. (5 << 25, 3), (7 << 26, 3),
  * For other primes/integers, use two different primes and combine with CRT. (479 << 21, 3) and (483 << 21, 5). The last two are > 10^9
  * Inputs must be in [0, mod).
  */

@@ -3,6 +3,7 @@ re_notebook:
 
 notebook:
 	# make clean
+	clang-format -i content/*/*.h
 	python3 notebook_gen.py
 	typst compile notebook.typ
 

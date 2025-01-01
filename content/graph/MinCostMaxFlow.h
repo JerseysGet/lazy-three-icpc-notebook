@@ -1,6 +1,6 @@
-template <const int MAX_N, typename flow_t, 
-typename cost_t, flow_t FLOW_INF, 
-cost_t COST_INF, const int SCALE = 16>
+template <const int MAX_N, typename flow_t,
+          typename cost_t, flow_t FLOW_INF,
+          cost_t COST_INF, const int SCALE = 16>
 struct CostScalingMCMF {
 #define sz(a) a.size()
 #define zero_stl(v, sz) fill(v.begin(), v.begin() + (sz), 0)

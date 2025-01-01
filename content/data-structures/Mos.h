@@ -14,7 +14,8 @@ void solve() {
   vector<Query> queries;
   queries.reserve(q);
   for (int i = 0; i < q; i++) {
-    int l, r; cin >> l >> r;
+    int l, r;
+    cin >> l >> r;
     l--, r--;
     queries.emplace_back(l, r, i);
   }

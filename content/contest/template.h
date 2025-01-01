@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+
 #include <ext/pb_ds/assoc_container.hpp>
 //#pragma GCC target("bmi,bmi2,lzcnt,popcnt")
 //#pragma GCC optimize("O2,unroll-loops")
@@ -26,9 +27,10 @@ const int INF = numeric_limits<int>::max();
 const int M = 1e9 + 7;
 void solve() {}
 int32_t main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(NULL);
-    cout.tie(NULL);
-    int tt; cin >> tt;
-    while (tt--) solve();
+  ios_base::sync_with_stdio(0);
+  cin.tie(NULL);
+  cout.tie(NULL);
+  int tt;
+  cin >> tt;
+  while (tt--) solve();
 }
