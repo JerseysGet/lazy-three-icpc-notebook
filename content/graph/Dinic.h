@@ -1,129 +1,46 @@
-/* Description: Complexity O(VE log U) where U = max {cap}.
- * O(min(E^{1/2}, V^{2/3})E) if $U = 1$; O(\sqrt{V}E) for bipartite matching.
- */
-template <class T = int>
-class Dinic {
- public:
-  struct Edge {
-    Edge(int a, T b) {
-      to = a;
-      cap = b;
-    }
-    int to;
-    T cap;
-  };
-
-  Dinic(int n) {
-    edges.resize(n);
-    this->n = n;
-  }
-
-  T maxFlow(int src, int sink) {
-    T ans = 0;
-    while (bfs(src, sink)) {
-      T flow;
-      pt = vector<int>(n, 0);
-      while ((flow = dfs(src, sink))) {
-        ans += flow;
-      }
-    }
-    return ans;
-  }
-
-  void addEdge(int from, int to, T cap = 1) {
-    edges[from].push_back(list.size());
-    list.push_back(Edge(to, cap));
-    edges[to].push_back(list.size());
-    list.push_back(Edge(from, 0));
-  }
-
- private:
-  int n;
-  vector<vector<int>> edges;
-  vector<Edge> list;
-  vector<int> h, pt;
-  T dfs(int on, int sink, T flow = 1e9) {
-    if (flow == 0) {
-      return 0;
-    }
-    if (on == sink) {
-      return flow;
-    }
-    for (; pt[on] < sz(edges[on]); pt[on]++) {
-      int cur = edges[on][pt[on]];
-      if (h[on] + 1 != h[list[cur].to]) {
-        continue;
-      }
-      T got = dfs(list[cur].to, sink, min(flow, list[cur].cap));
-      if (got) {
-        list[cur].cap -= got;
-        list[cur ^ 1].cap += got;
-        return got;
-      }
-    }
-    return 0;
-  }
-  bool bfs(int src, int sink) {
-    h = vector<int>(n, n);
-    h[src] = 0;
-    queue<int> q;
-    q.push(src);
-    while (!q.empty()) {
-      int on = q.front();
-      q.pop();
-      for (auto a : edges[on]) {
-        if (list[a].cap == 0) {
-          continue;
-        }
-        int to = list[a].to;
-        if (h[to] > h[on] + 1) {
-          h[to] = h[on] + 1;
-          q.push(to);
-        }
-      }
-    }
-    return h[sink] < n;
-  }
+// Flow algorithm with complexity $O(VE\log U)$ where $U = \max |\text{cap}|$.
+// $O(\min(E^{1/2}, V^{2/3})E)$ if $U = 1$; $O(\sqrt{V}E)$ for bipartite matching.
+using ll = long long;
+#define rep(i, j, k) for (int i = j; i < k; i++)
+struct Dinic {
+	struct Edge {
+		int to, rev;
+		ll c, oc;
+		ll flow() { return max(oc - c, 0LL); } // if you need flows
+	};
+	vi lvl, ptr, q;
+	vector<vector<Edge>> adj;
+	Dinic(int n) : lvl(n), ptr(n), q(n), adj(n) {}
+	void addEdge(int a, int b, ll c, ll rcap = 0) {
+		adj[a].push_back({b, sz(adj[b]), c, c});
+		adj[b].push_back({a, sz(adj[a]) - 1, rcap, rcap});
+	}
+	ll dfs(int v, int t, ll f) {
+		if (v == t || !f) return f;
+		for (int& i = ptr[v]; i < sz(adj[v]); i++) {
+			Edge& e = adj[v][i];
+			if (lvl[e.to] == lvl[v] + 1)
+				if (ll p = dfs(e.to, t, min(f, e.c))) {
+					e.c -= p, adj[e.to][e.rev].c += p;
+					return p;
+				}
+		}
+		return 0;
+	}
+	ll calc(int s, int t) {
+		ll flow = 0; q[0] = s;
+		rep(L,0,31) do { // 'int L=30' maybe faster for random data
+			lvl = ptr = vi(sz(q));
+			int qi = 0, qe = lvl[s] = 1;
+			while (qi < qe && !lvl[t]) {
+				int v = q[qi++];
+				for (Edge e : adj[v])
+					if (!lvl[e.to] && e.c >> (30 - L))
+						q[qe++] = e.to, lvl[e.to] = lvl[v] + 1;
+			}
+			while (ll p = dfs(s, t, LLONG_MAX)) flow += p;
+		} while (lvl[t]);
+		return flow;
+	}
+	bool leftOfMinCut(int a) { return lvl[a] != 0; }
 };
-void solve() {
-  int n, m;
-  cin >> n >> m;
-  vi a(n);
-  for (int i = 0; i < n; i++) {
-    cin >> a[i];
-  }
-  Dinic<int> flow(n + 2);
-  map<int, map<int, int>> factors;
-  for (int i = 0; i < n; i++) {
-    for (int j = 2; j * j <= a[i]; j++) {
-      while (a[i] % j == 0) {
-        factors[j][i + 1]++;
-        a[i] /= j;
-      }
-    }
-    if (a[i] > 1) {
-      factors[a[i]][i + 1]++;
-    }
-  }
-  for (int i = 0; i < m; i++) {
-    int u, v;
-    cin >> u >> v;
-    if (u % 2 == 0) {
-      swap(u, v);
-    }
-    flow.addEdge(u, v, 100);
-  }
-  int ans = 0;
-  for (auto t : factors) {
-    Dinic<int> tempflow = flow;
-    for (auto t1 : t.second) {
-      if (t1.first % 2 == 0) {
-        tempflow.addEdge(t1.first, n + 1, t1.second);
-      } else {
-        tempflow.addEdge(0, t1.first, t1.second);
-      }
-    }
-    ans += tempflow.maxFlow(0, n + 1);
-  }
-  cout << ans << endl;
-}

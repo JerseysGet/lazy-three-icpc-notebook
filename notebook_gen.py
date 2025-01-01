@@ -35,5 +35,5 @@ for section_name, section_path in zip(section_list, section_path_list):
         if pathlib.Path(file).suffix != ".typ" or file == "chapter.typ":
             continue
         chapter_content += f"#include \"{file}\"\n"
-    with open(chapter_file_path, "w") as chapter_file:
-        chapter_file.write(chapter_content)
+    # with open(chapter_file_path, "w") as chapter_file:
+    #     chapter_file.write(chapter_content)

@@ -1,19 +1,27 @@
+/* Set the font of regular text, code, math */
+#set text(size: 12pt, font: "Arial") // Font for text
+#show raw: set text(font: "JetBrains Mono", size: 12pt) // Font for code
+#show math.equation: set text(font: "Times New Roman", size: 12pt) // Font for math
+
 #set page(
   paper:"a4",
   flipped: true,
   columns: 2,
-  margin: (x: 1in, y: 1in),
-  numbering: "1"
+  /* Margins */
+  margin: (x: .5in, y: .7in),
+  // numbering: "1",
+  // header: left("hi"),
+  // header: "IIIT Hyderabad Lazy Three",
+  header: grid(
+    columns: (1fr, 1fr),
+    align(left, "IIIT Hyderabad - Lazy Three"),
+    align(right, counter(page).display()),
+  ),
 )
-
-/* Set the font of regular text, code, math */
-#set text(size: 12pt, font: "Times New Roman") // Font for text
-#show raw: set text(font: "Times New Roman", size: 12pt) // Font for code
-#show math.equation: set text(font: "Times New Roman", size: 12pt) // Font for math
 
 /* Set heading properties*/
 #set heading(numbering: "1.1.")
-#show heading.where(level:1): set text(size: 16pt)
+#show heading.where(level:1): set text(size: 14pt)
 #show heading.where(level:2): set text(size: 13pt)
 #set heading(outlined: false)
 
@@ -21,7 +29,7 @@
 #outline()
 
 #heading(outlined: true, level: 1)[Contest]
-#include "content/contest/template.typ"
+#include "content/contest/chapter.typ"
 
 #heading(outlined: true, level: 1)[Data Structures]
 #include "content/data-structures/chapter.typ"
