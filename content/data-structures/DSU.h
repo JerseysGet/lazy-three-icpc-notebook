@@ -1,7 +1,7 @@
 struct DSU {
   int n;
-  vector<int> parent;
-  vector<int> size;
+  vi parent;
+  vi size;
   DSU(int _n) : n(_n), parent(n), size(n, 1) { iota(parent.begin(), parent.end(), 0); }
   int find_set(int x) {
     if (parent[x] == x) return x;

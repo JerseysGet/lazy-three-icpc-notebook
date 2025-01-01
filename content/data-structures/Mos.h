@@ -9,7 +9,6 @@ struct Query {
            (mblock == oblock and mblock % 2 == 1 and r > o.r);
   };
 };
-// Solve
 void solve() {
   vector<Query> queries;
   queries.reserve(q);

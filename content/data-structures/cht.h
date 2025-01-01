@@ -1,5 +1,3 @@
-using i64 = int64_t;
-
 struct Line {
   mutable i64 m, c, p;
   bool operator<(const Line& o) const { return m < o.m; }
