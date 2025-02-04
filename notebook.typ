@@ -1,6 +1,6 @@
 /* Set the font of regular text, code, math */
-#set text(size: 12pt, font: "Arial") // Font for text
-#show raw: set text(font: "JetBrains Mono", size: 12pt) // Font for code
+#set text(size: 12pt, font: "Times New Roman") // Font for text
+#show raw: set text(font: "Times New Roman", size: 12pt) // Font for code
 #show math.equation: set text(font: "Times New Roman", size: 12pt) // Font for math
 
 #set page(
@@ -8,7 +8,7 @@
   flipped: true,
   columns: 2,
   /* Margins */
-  margin: (x: .5in, y: .7in),
+  margin: (x: 1in, y: 1in),
   // numbering: "1",
   // header: left("hi"),
   // header: "IIIT Hyderabad Lazy Three",
