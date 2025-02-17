@@ -58,3 +58,26 @@ struct LazySegTree {
     return process<true>(l, r, [&](int i) { apply(i, upd); return id; });
   }
 };
+struct node {
+  int sum, width;
+  node operator+(const node &n) {
+    // Change 1
+    return {sum + n.sum, width + n.width};
+  }
+};
+struct update {
+  bool type;  // 0 for add, 1 for reset
+  int value;
+  node operator()(const node &n) {  // apply update on n
+    // Change 2
+    if (type)
+      return {n.width * value, n.width};
+    else
+      return {n.sum + n.width * value, n.width};
+  }
+  update operator+(const update &u) {  // u is the recent update, *this is the older update
+    // Change 3
+    if (u.type) return u;
+    return {type, value + u.value};
+  }
+};
