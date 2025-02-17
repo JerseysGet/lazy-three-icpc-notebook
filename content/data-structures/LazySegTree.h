@@ -1,88 +1,60 @@
 template <typename T, typename U>
-struct seg_tree_lazy {
-  int S, H;
-  T zero;
-  vector<T> value;
-  U noop;
+struct LazySegTree {
+  int n, off, ct;
+  vector<T> t;
+  const T id;
+  const U noop;
   vector<bool> dirty;
   vector<U> prop;
-  seg_tree_lazy(int _S, T _zero = T(), U _noop = U()) {
-    zero = _zero, noop = _noop;
-    for (S = 1, H = 1; S < _S;) S *= 2, H++;
-    value.resize(2 * S, zero);
-    dirty.resize(2 * S, false);
-    prop.resize(2 * S, noop);
+  LazySegTree(const vector<T> &a, T _id = T(), U _noop = U()) : n(sz(a)), t(2 * n), id(_id), noop(_noop), dirty(2 * n), prop(2 * n, noop) {
+    off = 1 << 32 - __builtin_clz(n);
+    ct = 2 * (n ^ off >> 1);
+    copy_n(begin(a), ct, off + begin(t));
+    copy_n(rbegin(a), n - ct, rend(t) - off);
+    for (int i = n - 1; i >= 1; i--) t[i] = t[2 * i] + t[2 * i + 1];
   }
-  void set_leaves(vector<T> &leaves) {
-    copy(leaves.begin(), leaves.end(), value.begin() + S);
-    for (int i = S - 1; i > 0; i--)
-      value[i] = value[2 * i] + value[2 * i + 1];
-  }
-  void apply(int i, U &update) {
-    value[i] = update(value[i]);
-    if (i < S) {
-      prop[i] = prop[i] + update;
+  int i2leaf(int i) { return i + off - (i < ct ? 0 : n); }
+  int leaf2i(int l) { return l - off + (l < off ? n : 0); }
+  void apply(int i, U &upd) {
+    t[i] = upd(t[i]);
+    if (i < n) {
+      prop[i] = prop[i] + upd;
       dirty[i] = true;
     }
   }
   void rebuild(int i) {
-    for (int l = i / 2; l; l /= 2) {
-      T combined = value[2 * l] + value[2 * l + 1];
-      value[l] = prop[l](combined);
-    }
+    for (int l = i / 2; l; l /= 2)
+      t[l] = prop[l](t[2 * l] + t[2 * l + 1]);
   }
   void propagate(int i) {
-    for (int h = H; h > 0; h--) {
+    for (int h = 31 - __builtin_clz(i); h > 0; h--) {
       int l = i >> h;
       if (dirty[l]) {
         apply(2 * l, prop[l]);
         apply(2 * l + 1, prop[l]);
-
-        prop[l] = noop;
-        dirty[l] = false;
+        prop[l] = noop, dirty[l] = false;
       }
     }
   }
-  void upd(int i, int j, U update) {
-    i += S, j += S;
+  template <bool isupd, typename F>
+  T process(int l, int r, F f) {
+    int i = i2leaf(l), j = i2leaf(r);
     propagate(i), propagate(j);
-    for (int l = i, r = j; l <= r; l /= 2, r /= 2) {
-      if ((l & 1) == 1) apply(l++, update);
-      if ((r & 1) == 0) apply(r--, update);
+    l = i * (1 + (l >= ct));
+    r = j * (1 + (r >= ct));
+    r += (r >= 2 * n);
+    T resl(id), resr(id);
+    for (; l <= r; l /= 2, r /= 2) {
+      if (l & 1) resl = resl + f(l++);
+      if (!(r & 1)) resr = f(r--) + resr;
     }
-    rebuild(i), rebuild(j);
+    if constexpr (isupd) return rebuild(i), rebuild(j), id;
+    return resl + resr;
   }
-  T query(int i, int j) {
-    i += S, j += S;
-    propagate(i), propagate(j);
-    T res_left = zero, res_right = zero;
-    for (; i <= j; i /= 2, j /= 2) {
-      if ((i & 1) == 1) res_left = res_left + value[i++];
-      if ((j & 1) == 0) res_right = value[j--] + res_right;
-    }
-    return res_left + res_right;
+  T query(int l, int r) {
+    return process<false>(l, r, [&](int i) { return t[i]; });
   }
-};
-struct node {
-  int sum, width;
-  node operator+(const node &n) {
-    // Change 1
-    return {sum + n.sum, width + n.width};
-  }
-};
-struct update {
-  bool type;  // 0 for add, 1 for reset
-  int value;
-  node operator()(const node &n) {  // apply update on n
-    // Change 2
-    if (type)
-      return {n.width * value, n.width};
-    else
-      return {n.sum + n.width * value, n.width};
-  }
-  update operator+(const update &u) {  // u is the recent update, *this is the older update
-    // Change 3
-    if (u.type) return u;
-    return {type, value + u.value};
+  T update(int l, int r, U upd) {
+    return process<true>(l, r, [&](int i) { apply(i, upd); return id; });
   }
 };
